@@ -7,12 +7,15 @@ const OPTIONS = {
     database: 'zmones',
     // tam kad apsaugoti nuo injection attack'u
     multipleStatements: true,
-
 };
+
+// CONNECTION POOL SUKURIMAS
+const pool = mysql.createPool(OPTIONS);
+
+
 function connect() {
     return new Promise((resolve, reject) => {
-        let conn = mysql.createConnection(OPTIONS);
-        conn.connect(err => {
+        pool.getConnection((err, conn) => {
             if (err) {
                 return reject(err);
             }
@@ -20,6 +23,7 @@ function connect() {
         });
     });
 }
+
 function query(conn, sql, values) {
     return new Promise((resolve, reject) => {
         conn.query({
@@ -33,15 +37,16 @@ function query(conn, sql, values) {
         });
     });
 }
-// sukuriama funkcija bandant atsijungti
+
+// sukuriama funkcija bandant atsijungti, naudojama POOL
 function end(conn) {
     return new Promise((resolve, reject) => {
-        conn.end(err => {
-            if (err) {
-                return reject(err);
-            }
-            resolve();
-        });
+        if (conn) {
+            conn.release();
+        }
+        resolve();
     });
 }
-export {connect, query, end };
+// DABAR SERVERIS NE UZDARINEJA CONNECTION O ATGAL GRAZINA I POOL
+
+export { connect, query, end };

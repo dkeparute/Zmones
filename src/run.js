@@ -34,26 +34,39 @@ app.use(express.urlencoded({
     extended: true,
 }));
 // ent pointas
+// ZMONIU SARASAS
+
 app.get("/zmones", async (req, res) => {
     let conn;
     try {
         conn = await connect();
         const { results: zmones } = await query(conn, "select * from zmones",);
-        console.log(zmones);
+        // console.log(zmones);
         res.render("Zmones", { zmones });
     } catch (err) {
         res.render("Klaida", { err });
     } finally {
-        if (conn) {
-            try {
-                await end(conn);
-            } catch (e) {
-                console.log("Klaida atsijungiant", e);
-            }
-        }
+        await end(conn);
     }
 });
 
+// ZMONIU KONTAKTAI
+
+app.get("/kontaktai", async (req, res) => {
+    let conn;
+    try {
+        conn = await connect();
+        const { results: kontaktai } = await query(conn,
+            `select id, zmones_id, tipas, reiksme
+        from kontaktai
+        order by tipas`,);
+        res.render("kontaktai", { kontaktai });
+    } catch (err) {
+        res.render("Klaida", { err });
+    } finally {
+        await end(conn);
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Zmones app listening at http://localhost:${PORT}`);
