@@ -6,20 +6,25 @@ const PORT = 3000;
 const WEB = "web";
 
 const app = express();
-// HELPERIAI KVIECIAMI I PAGALBA SUFORMATUOTI DATA
+// HELPERIAI KVIECIAMI I PAGALBA SUFORMATUOTI DATA I STRINGA
 app.engine("handlebars", exphbs({
     helpers: {
         dateFormat: (date) => {
             if (date instanceof Date) {
-                const year = date.getFullYear();
-                const month = date.getMonth();
-                const day = date.getDate();
+                let year = "0000" + date.getFullYear();
+                year = year.substr(- 4);
+                let month = "00" + (date.getMonth() + 1);
+                // get month grazina nuo 0 iki 11 skaicius del to pridedame + 1
+                month = month.substr(- 2);
+                let day = "00" + date.getDate();
+                day = day.substr(- 2);
                 return `${year}-${month}-${day}`;
             }
             return date;
         }
     }
 }));
+// HELPERIU PABAIGA
 app.set("view engine", "handlebars");
 
 app.use(express.static(WEB, {
