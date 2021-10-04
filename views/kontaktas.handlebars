@@ -1,0 +1,8 @@
+<form action="/kontaktas" method="post">
+    {{#if kontaktas}}
+    <input type="hidden" name="id" value="{{kontaktas.id}}">
+    {{/if}}
+    Tipas: <input type="text" name="tipas" value="kontaktas.tipas"><br>
+    <input type="submit" value="Save">
+    <a href="/kontaktai">Cancel</a>
+</form>

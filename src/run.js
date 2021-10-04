@@ -68,6 +68,31 @@ app.get("/kontaktai", async (req, res) => {
     }
 });
 
+// reikia padaryti n pointa / kontaktas
+// tam kad pasiekti id reikia zinoti ar parametras yra toks.
+app.get("/kontaktas/:id", async (req, res) => {
+    req.params.id = parseInt(req.params.id);
+    if (!isNaN(req.params.id)) {
+        let conn;
+        try {
+           conn = await connect();
+            const { results: kontaktai } = await query(conn,
+                `select id, tipas from kontaktai where id=?`, [req.params.id]);
+            if (kontaktai.length > 0) {
+                res.render("kontaktas", { kontaktas: kontaktai[0] });
+            } else {
+                res.redirect("/");
+            }
+        } catch (err) {
+            res.render("Klaida", { err });
+        } finally {
+            await end(conn);
+        }
+    } else {
+        res.render("kontaktas");
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Zmones app listening at http://localhost:${PORT}`);
 });

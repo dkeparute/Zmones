@@ -1,10 +1,10 @@
 <h1>Zmoniu kontaktai</h1>
-
+{{!-- reikia mygtuko NAUJAS --}}
+<a href="/kontaktas">Naujas</a>
 <ul>
     {{#each kontaktai}}
-    <li>
-        {{tipas}} {{reiksme}}
-    </li>
+    <li> <a href="/kontaktas/{{id}}">{{tipas}} </a></li>
+    {{!-- CIA REDAGUOSIU TIPE ESANTI id --}}
     {{/each}}
 </ul>
 <a href="/">Pagrindinis</a>
