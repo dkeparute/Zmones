@@ -6,7 +6,9 @@ const PORT = 3000;
 const WEB = "web";
 
 const app = express();
+
 // HELPERIAI KVIECIAMI I PAGALBA SUFORMATUOTI DATA I STRINGA
+
 app.engine("handlebars", exphbs({
     helpers: {
         dateFormat: (date) => {
@@ -25,6 +27,7 @@ app.engine("handlebars", exphbs({
     }
 }));
 // HELPERIU PABAIGA
+
 app.set("view engine", "handlebars");
 
 app.use(express.static(WEB, {
@@ -69,26 +72,39 @@ app.get("/kontaktai", async (req, res) => {
 });
 
 // reikia padaryti n pointa / kontaktas
-// tam kad pasiekti id reikia zinoti ar parametras yra toks.
-app.get("/kontaktas/:id", async (req, res) => {
-    req.params.id = parseInt(req.params.id);
-    if (!isNaN(req.params.id)) {
-        let conn;
-        try {
-           conn = await connect();
-            const { results: kontaktai } = await query(conn,
-                `select id, tipas from kontaktai where id=?`, [req.params.id]);
-            if (kontaktai.length > 0) {
-                res.render("kontaktas", { kontaktas: kontaktai[0] });
-            } else {
-                res.redirect("/");
+app.get("/kontaktas/:id?", async (req, res) => {
+    // tikrinam ar yra perduotas id parametras
+    // id su klaustuku reiskia jog id gali buti arba nebuti
+    // console.log("atejo id", req.params.id);
+    if (req.params.id) {
+        const id = parseInt(req.params.id);
+        if (!isNaN(id)) {
+            let conn;
+            try {
+                conn = await connect();
+                const { results: kontaktai } = await query(conn,
+                    `select id, tipas from kontaktai where id=?`, [id]);
+                if (kontaktai.length > 0) {
+                    // siame sarase yra 1 irsas (tas kurio mes ir ieskojom)
+                    // generuojam forma su tuo irasu
+                    res.render("kontaktas", { kontaktas: kontaktai[0] });
+                } else {
+                    // kontaktas su nurodytu id nerastas
+                    res.redirect("/kontaktai");
+                }
+            } catch (err) {
+                // jeigu ivyko klaida gaunant duomenis
+                res.render("Klaida", { err });
+            } finally {
+                await end(conn);
             }
-        } catch (err) {
-            res.render("Klaida", { err });
-        } finally {
-            await end(conn);
+        } else {
+            // Padave id ne skaiciu - dabar siunciam i kontaktu sarasa
+            // o galim parodyt ir klaidos forma
+            res.redirect("/kontaktai");
         }
     } else {
+        // Naujo kontakto ivedimas
         res.render("kontaktas");
     }
 });
